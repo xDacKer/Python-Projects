@@ -124,7 +124,7 @@ class Casino():
             '╚═══════════╝'],
             ['╔═══════════╗',
             f'║ Q {symbol}       ║',
-            '║     ✚     ║',
+            '║     +     ║',
             '║   qoOop   ║',
             '║  (*-*-*)  ║',
             f'║       {symbol} Q ║',
@@ -186,11 +186,16 @@ class Casino():
           ---------------------
           |   Player's Hand   |
           ---------------------\n""")
-            else:
+            elif len(self.player_hand) == 4:
                 print("""
                  ---------------------
                  |   Player's Hand   |
                  ---------------------\n""")
+            else:
+                print("""
+                        ---------------------
+                        |   Player's Hand   |
+                        ---------------------\n""")
 
             count = 0 # Variable flag
             # Loop to print the cards one beside the other
@@ -210,7 +215,8 @@ class Casino():
                 elif only_once and 'A' in self.player_hand[-1][1] and self.player_value > 21:
                     self.player_value -= 10
                     only_once = False
-                elif one_ace and self.player_value > 21:
+                
+                if one_ace and self.player_value > 21:
                     self.player_value -= 10
                     one_ace = False
             
@@ -231,11 +237,16 @@ class Casino():
           ---------------------
           | Total value: {self.player_value}{spaces}|
           ---------------------""")
-            else:
+            elif len(self.player_hand) == 4:
                 print(f"""
                  ---------------------
                  | Total value: {self.player_value}{spaces}|
                  ---------------------""")
+            else:
+                print(f"""
+                    ---------------------
+                    | Total value: {self.player_value}{spaces}|
+                    ---------------------""")
 
             # Checks if the player wants one more card
             one_more = input("\nWould you like to hit? (y/n): ").lower().strip()
@@ -270,7 +281,8 @@ class Casino():
             elif only_once and 'A' in self.dealer_hand[-1][1] and self.dealer_value < 21:
                 one_ace = True
                 only_once = False
-            elif one_ace and self.dealer_value > 21:
+            
+            if one_ace and self.dealer_value > 21:
                 self.dealer_value -= 10
                 one_ace = False
 
@@ -306,11 +318,16 @@ class Casino():
           ---------------------
           |   Dealer's Hand   |
           ---------------------\n""")
-        else:
+        elif len(self.dealer_hand) == 4:
             print("""
                      ---------------------
                      |   Dealer's Hand   |
                      ---------------------\n""")
+        else:
+            print("""
+                        ---------------------
+                        |   Dealer's Hand   |
+                        ---------------------\n""")
         
         count = 0
         while count < 7:
@@ -333,11 +350,16 @@ class Casino():
           ---------------------
           | Total value: {self.dealer_value}   |
           ---------------------""")
-        else:
+        elif len(self.dealer_hand) == 4:
             print(f"""
                      ---------------------
                      | Total value: {self.dealer_value}   |
                      ---------------------""")
+        else:
+            print(f"""
+                        ---------------------
+                        | Total value: {self.dealer_value}   |
+                        ---------------------""")
 
 print("Welcome to the Blackjack App.")
 
