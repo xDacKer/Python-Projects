@@ -27,14 +27,22 @@ class Casino():
         """Function to display the information"""
         # Print the current money, gets the bet input and assigns to the class variable
         print(f"\nCurrent Money: ${self.wallet}")
-        self.bet = int(input("What would you like to bet? (minimum bet of 20): "))
+        self.bet = int(input("What would you like to bet? (minimum bet of 20): ") or "0")
+        # Checks if the input is 0. If it's closes the program
+        if self.bet == 0:
+            print("\nNo bet no play. Hope you enjoyed. See you next time!")
+            return running == False
         # Checks if the input is at least 20. If not, prints a warning and set to 20 the variable
         if self.bet < 20:
             print("Told you that the minimum bet is $20.  Bet set to $20.")
             self.bet = 20
 
+        # Takes out the bet from the current money
+        self.wallet -= self.bet
+
         # Print the current money and the current bet for the round
         print(f"\nCurrent Money: ${self.wallet}\tCurrent Bet: ${self.bet}")
+        return running == True
 
     def cards(self):
         """Function to create cards"""        
@@ -217,11 +225,16 @@ class Casino():
                  ---------------------
                  |   Player's Hand   |
                  ---------------------\n""")
-            else:
+            elif len(self.player_hand) == 5:
                 print("""
                         ---------------------
                         |   Player's Hand   |
                         ---------------------\n""")
+            else:
+                print("""
+                               ---------------------
+                               |   Player's Hand   |
+                               ---------------------\n""")
 
             count = 0 # Variable flag
             # Loop to print the cards one beside the other
@@ -268,21 +281,34 @@ class Casino():
                  ---------------------
                  | Total value: {self.player_value}{spaces}|
                  ---------------------""")
+            elif len(self.player_hand) == 5:
+                print(f"""
+                        ---------------------
+                        | Total value: {self.player_value}{spaces}|
+                        ---------------------""")
             else:
                 print(f"""
-                    ---------------------
-                    | Total value: {self.player_value}{spaces}|
-                    ---------------------""")
+                               ---------------------
+                               | Total value: {self.player_value}{spaces}|
+                               ---------------------""")
 
-            # Checks if the player wants one more card
-            one_more = input("\nWould you like to hit? (y/n): ").lower().strip()
-
-            # Checks if the value is already over 21
-            if one_more == 'y' and self.player_value > 21:
-                print("Sorry, you already went over 21.")
+            # Checks if the value is below 21
+            if self.player_value < 21:
+                # If its, checks if the player wants one more card
+                one_more = input("\nWould you like to hit? (y/n): ").lower().strip()
+            # Else, the value is already over 21
+            elif self.player_value == 21 and len(self.player_hand) == 2:
+                print("\nYou got a Blackjack!!")
                 break
-            # If not, it creates another card
-            elif one_more == 'y':
+            elif self.player_value == 21:
+                print("\nYou got 21!!")
+                break
+            else:
+                print("\nSorry, you already went over 21.")
+                break
+
+            # checks if the player wants one more card, then creates it
+            if one_more == 'y':
                 card, value = self.cards()
                 self.player_hand.append(card)
                 self.player_value += value
@@ -348,14 +374,19 @@ class Casino():
           ---------------------\n""")
         elif len(self.dealer_hand) == 4:
             print("""
-                     ---------------------
-                     |   Dealer's Hand   |
-                     ---------------------\n""")
-        else:
+                 ---------------------
+                 |   Dealer's Hand   |
+                 ---------------------\n""")
+        elif len(self.dealer_hand) == 5:
             print("""
                         ---------------------
                         |   Dealer's Hand   |
                         ---------------------\n""")
+        else:
+            print("""
+                               ---------------------
+                               |   Dealer's Hand   |
+                               ---------------------\n""")
         
         count = 0
         while count < 9:
@@ -380,22 +411,57 @@ class Casino():
           ---------------------""")
         elif len(self.dealer_hand) == 4:
             print(f"""
-                     ---------------------
-                     | Total value: {self.dealer_value}   |
-                     ---------------------""")
-        else:
+                 ---------------------
+                 | Total value: {self.dealer_value}   |
+                 ---------------------""")
+        elif len(self.dealer_hand) == 5:
             print(f"""
                         ---------------------
                         | Total value: {self.dealer_value}   |
                         ---------------------""")
+        else:
+            print(f"""
+                               ---------------------
+                               | Total value: {self.dealer_value}   |
+                               ---------------------""")
+
+    def who_wins(self):
+        """Function to check the values of the player and the dealer and set who wins"""
+        # Check if the player has a blackjack but not the dealer too
+        if ((len(self.player_hand) == 2 and self.player_value == 21 and ('A' in self.player_hand[0][1] or 'A' in self.player_hand[1][1])) and not
+        (len(self.dealer_hand) == 2 and self.dealer_value == 21 and ('A' in self.dealer_hand[0][1] or 'A' in self.dealer_hand[1][1]))):
+            print(f"\nIt's a BLACKJACK!! You win ${self.bet*2}!!")
+            self.wallet += self.bet * 3
+        # Check if the player is not over 21
+        elif self.player_value > 21:
+            print("\nYou went over 21.  You lose...")
+        # Check if the dealer is not over 21
+        elif self.dealer_value > 21:
+            print("\nDealer went over 21.  You win!")
+            self.wallet += self.bet * 2
+        # Check if the player value is the same as dealer
+        elif self.player_value == self.dealer_value:
+            print(f"\nYou and dealer both got {self.player_value}. It's a push!")
+            self.wallet += self.bet
+        # Check if the player value is over the dealer value (but not over 21)
+        elif self.player_value > self.dealer_value:
+            print(f"\nDealer gets {self.dealer_value} over {self.player_value}.  You win!")
+            self.wallet += self.bet * 2
+        # Check if the player value is below the dealer value (but not over 21)
+        elif self.player_value < self.dealer_value:
+            print(f"\nDealer gets {self.dealer_value} over {self.player_value}.  You lose...")
 
 print("Welcome to the Blackjack App.")
 
 # Print the minimum bet info and get the input of how much are gonna willing to play
 print("\nThe minimum bet at this table is $20.")
-wallet = int(input("How much money are you willing to play with today?: "))
+wallet = int(input("How much money are you willing to play with today?: ") or "0")
+# Sets wallet to 100 if no input given
+if wallet == 0:
+    input("\nNo money no play.  See you next time!")
+    quit()
 # Checks if the wallet value is over 20
-if wallet < 20:
+elif wallet < 20:
     # If not, prints a warning and closes the program
     print(f"\nTold you that the minimum bet is $20. You can't play with {wallet}.")
     input("See you next time.  Bye!")
@@ -410,7 +476,9 @@ cards_created = []
 running = True # Variable flag
 while running:
     # Displays information of the current money and current bet
-    my_bets.display_info()
+    running = my_bets.display_info()
+    if not running:
+        break
 
     # Displays the first card of the dealer
     my_bets.dealer_card()
@@ -420,18 +488,7 @@ while running:
     my_bets.dealer_cards()
 
     # Checks the values of the player and the dealer and sets who wins
-    if my_bets.dealer_value > 21:
-        print("\nDealer went over 21.  You win!")
-        my_bets.wallet += my_bets.bet
-    elif my_bets.player_value > 21:
-        print("\nYou went over 21.  You lose...")
-        my_bets.wallet -= my_bets.bet
-    elif my_bets.player_value > my_bets.dealer_value:
-        print(f"\nDealer gets {my_bets.dealer_value} over {my_bets.player_value}.  You win!")
-        my_bets.wallet += my_bets.bet
-    else:
-        print(f"\nDealer gets {my_bets.dealer_value} over {my_bets.player_value}.  You lose...")
-        my_bets.wallet -= my_bets.bet
+    my_bets.who_wins()
 
     # Variables to reset every round
     cards_created = []
